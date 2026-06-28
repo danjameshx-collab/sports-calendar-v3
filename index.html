@@ -144,6 +144,96 @@
     border-radius: 20px;
     margin-bottom: 2px;
   }
+  .calendar-section {
+    margin-bottom: 36px;
+    border-radius: 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .calendar-section summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 22px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    background: linear-gradient(135deg, #1c2335 0%, #11151f 100%);
+  }
+  .calendar-section summary::-webkit-details-marker { display: none; }
+  .calendar-section summary .chevron {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 0.85rem;
+    transition: transform 0.2s ease;
+  }
+  .calendar-section[open] summary .chevron { transform: rotate(180deg); }
+  .live-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ff3b3b;
+    box-shadow: 0 0 10px 2px rgba(255,59,59,0.7);
+    animation: live-pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes live-pulse {
+    0%, 100% { opacity: 1; filter: brightness(1.5); }
+    50% { opacity: 0.45; filter: brightness(0.7); }
+  }
+  .calendar-months {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 26px;
+    padding: 6px 22px 26px;
+  }
+  .cal-month {
+    flex: 1 1 250px;
+    min-width: 230px;
+  }
+  .cal-month h3 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    color: var(--text);
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+  .cal-weekday {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 2px 0 4px;
+    font-weight: 600;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    border-radius: 7px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 4px 2px 3px;
+    font-size: 0.72rem;
+    color: var(--text);
+  }
+  .cal-day.empty { background: transparent; border-color: transparent; }
+  .cal-day.out-of-range { opacity: 0.3; }
+  .cal-day.today { border-color: #fff; box-shadow: 0 0 0 1px #fff inset; }
+  .cal-dots {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 3px;
+  }
+  .cal-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .cal-more { font-size: 0.55rem; color: var(--muted); }
   .empty-note {
     grid-column: 1 / -1;
     color: var(--muted);
@@ -262,6 +352,77 @@ function inWindow(dateStr) {
   return dt >= new Date(NOW.toDateString()) && dt <= HORIZON_END;
 }
 
+const ALL_EVENTS = [];
+
+function trackEvents(sport, events) {
+  events.forEach(e => {
+    if (e.date && inWindow(e.date)) {
+      ALL_EVENTS.push({ date: e.date, color: sport.color, name: sport.name, matchup: e.matchup });
+    }
+  });
+}
+
+function buildCalendarShell() {
+  const details = document.createElement("details");
+  details.className = "calendar-section";
+  details.innerHTML = `
+    <summary>
+      <span class="live-dot"></span>
+      <span>Live Sports Calendar</span>
+      <span class="chevron">▼</span>
+    </summary>
+    <div class="calendar-months" id="calendar-months"></div>
+  `;
+  document.getElementById("app").appendChild(details);
+}
+
+function buildMonth(year, monthIndex) {
+  const monthDiv = document.createElement("div");
+  monthDiv.className = "cal-month";
+
+  const monthName = new Date(year, monthIndex, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const startWeekday = new Date(year, monthIndex, 1).getDay();
+  const todayStr = NOW.toISOString().slice(0, 10);
+
+  let cellsHtml = "";
+  ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => {
+    cellsHtml += `<div class="cal-weekday">${d}</div>`;
+  });
+  for (let i = 0; i < startWeekday; i++) {
+    cellsHtml += `<div class="cal-day empty"></div>`;
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const dayEvents = ALL_EVENTS.filter(e => e.date === dateStr);
+    const isToday = dateStr === todayStr;
+    const outOfRange = !inWindow(dateStr);
+    const shown = dayEvents.slice(0, 5);
+    const extra = dayEvents.length - shown.length;
+    const dots = shown.map(e => `<span class="cal-dot" style="background:${e.color}"></span>`).join("");
+    const tooltip = dayEvents.map(e => `${e.name}: ${e.matchup}`).join(" | ");
+    cellsHtml += `
+      <div class="cal-day${outOfRange ? " out-of-range" : ""}${isToday ? " today" : ""}" ${tooltip ? `title="${tooltip.replace(/"/g, "'")}"` : ""}>
+        <span>${day}</span>
+        <div class="cal-dots">${dots}${extra > 0 ? `<span class="cal-more">+${extra}</span>` : ""}</div>
+      </div>
+    `;
+  }
+
+  monthDiv.innerHTML = `<h3>${monthName}</h3><div class="cal-grid">${cellsHtml}</div>`;
+  return monthDiv;
+}
+
+function renderCalendar() {
+  const wrap = document.getElementById("calendar-months");
+  let cursor = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
+  const endMonth = new Date(HORIZON_END.getFullYear(), HORIZON_END.getMonth(), 1);
+  while (cursor <= endMonth) {
+    wrap.appendChild(buildMonth(cursor.getFullYear(), cursor.getMonth()));
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+  }
+}
+
 function renderSection(sport, events) {
   const section = document.createElement("section");
   section.className = "sport-section";
@@ -309,6 +470,8 @@ function renderSection(sport, events) {
 
   // header badge count should reflect filtered count, not raw curated count
   header.querySelector(".badge").textContent = `${filtered.length} upcoming`;
+
+  trackEvents(sport, filtered);
 }
 
 async function fetchLiveAPISports(url) {
@@ -337,6 +500,8 @@ async function init() {
     `${fmtDate(NOW.toISOString().slice(0,10))} to ${fmtDate(HORIZON_END.toISOString().slice(0,10))}`;
 
   const todayStr = NOW.toISOString().slice(0, 10);
+
+  buildCalendarShell();
 
   // Athletics, Boxing, IPL Cricket, ONE Championship have no API-Sports coverage - always curated.
   renderSection(sportById("athletics"), CURATED.athletics);
@@ -380,6 +545,8 @@ async function init() {
 
   // International section always goes last: major cross-sport global events (no single API covers all of these).
   renderSection(sportById("international"), CURATED.international);
+
+  renderCalendar();
 }
 
 init();
