@@ -182,58 +182,86 @@
     0%, 100% { opacity: 1; filter: brightness(1.5); }
     50% { opacity: 0.45; filter: brightness(0.7); }
   }
-  .calendar-months {
+  .calendar-nav {
     display: flex;
-    flex-wrap: wrap;
-    gap: 26px;
-    padding: 6px 22px 26px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px 6px;
   }
-  .cal-month {
-    flex: 1 1 250px;
-    min-width: 230px;
+  .calendar-nav .cal-month-label {
+    font-size: 1.35rem;
+    font-weight: 700;
   }
-  .cal-month h3 {
-    margin: 0 0 10px;
-    font-size: 1rem;
+  .calendar-nav button {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
     color: var(--text);
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 8px 18px;
+    border-radius: 9px;
+    cursor: pointer;
   }
+  .calendar-nav button:hover:not(:disabled) { background: #1d2436; }
+  .calendar-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
   .cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+    gap: 8px;
+    padding: 10px 22px 28px;
   }
   .cal-weekday {
-    font-size: 0.68rem;
+    font-size: 0.78rem;
     color: var(--muted);
     text-align: center;
-    padding: 2px 0 4px;
-    font-weight: 600;
+    padding: 2px 0 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   .cal-day {
-    aspect-ratio: 1;
-    border-radius: 7px;
+    min-height: 130px;
+    border-radius: 10px;
     background: var(--panel-2);
     border: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 4px 2px 3px;
+    gap: 5px;
+    padding: 8px;
     font-size: 0.72rem;
     color: var(--text);
   }
   .cal-day.empty { background: transparent; border-color: transparent; }
-  .cal-day.out-of-range { opacity: 0.3; }
+  .cal-day.out-of-range { opacity: 0.35; }
   .cal-day.today { border-color: #fff; box-shadow: 0 0 0 1px #fff inset; }
-  .cal-dots {
-    display: flex;
-    gap: 2px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 3px;
+  .cal-daynum {
+    font-weight: 700;
+    font-size: 0.95rem;
   }
-  .cal-dot { width: 6px; height: 6px; border-radius: 50%; }
-  .cal-more { font-size: 0.55rem; color: var(--muted); }
+  .cal-events {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+  }
+  .cal-event-pill {
+    border-radius: 6px;
+    padding: 4px 6px;
+    color: #0b0e14;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .cal-event-pill .pill-name {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+  .cal-event-pill .pill-meta {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 500;
+    opacity: 0.85;
+  }
   .empty-note {
     grid-column: 1 / -1;
     color: var(--muted);
@@ -357,10 +385,14 @@ const ALL_EVENTS = [];
 function trackEvents(sport, events) {
   events.forEach(e => {
     if (e.date && inWindow(e.date)) {
-      ALL_EVENTS.push({ date: e.date, color: sport.color, name: sport.name, matchup: e.matchup });
+      ALL_EVENTS.push({ date: e.date, color: sport.color, name: sport.name, matchup: e.matchup, time: e.time, venue: e.venue });
     }
   });
 }
+
+const CAL_MIN_MONTH = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
+const CAL_MAX_MONTH = new Date(HORIZON_END.getFullYear(), HORIZON_END.getMonth(), 1);
+let calCursor = new Date(CAL_MIN_MONTH);
 
 function buildCalendarShell() {
   const details = document.createElement("details");
@@ -371,22 +403,40 @@ function buildCalendarShell() {
       <span>Live Sports Calendar</span>
       <span class="chevron">▼</span>
     </summary>
-    <div class="calendar-months" id="calendar-months"></div>
+    <div class="calendar-nav">
+      <button id="cal-prev" type="button" aria-label="Previous month">‹</button>
+      <span class="cal-month-label" id="cal-month-label"></span>
+      <button id="cal-next" type="button" aria-label="Next month">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
   `;
   document.getElementById("app").appendChild(details);
+
+  details.querySelector("#cal-prev").addEventListener("click", () => {
+    calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1);
+    renderCalendarMonth();
+  });
+  details.querySelector("#cal-next").addEventListener("click", () => {
+    calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1);
+    renderCalendarMonth();
+  });
 }
 
-function buildMonth(year, monthIndex) {
-  const monthDiv = document.createElement("div");
-  monthDiv.className = "cal-month";
+function renderCalendarMonth() {
+  const year = calCursor.getFullYear();
+  const monthIndex = calCursor.getMonth();
 
-  const monthName = new Date(year, monthIndex, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  document.getElementById("cal-month-label").textContent =
+    calCursor.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  document.getElementById("cal-prev").disabled = calCursor <= CAL_MIN_MONTH;
+  document.getElementById("cal-next").disabled = calCursor >= CAL_MAX_MONTH;
+
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
   const startWeekday = new Date(year, monthIndex, 1).getDay();
   const todayStr = NOW.toISOString().slice(0, 10);
 
   let cellsHtml = "";
-  ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => {
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(d => {
     cellsHtml += `<div class="cal-weekday">${d}</div>`;
   });
   for (let i = 0; i < startWeekday; i++) {
@@ -397,30 +447,25 @@ function buildMonth(year, monthIndex) {
     const dayEvents = ALL_EVENTS.filter(e => e.date === dateStr);
     const isToday = dateStr === todayStr;
     const outOfRange = !inWindow(dateStr);
-    const shown = dayEvents.slice(0, 5);
-    const extra = dayEvents.length - shown.length;
-    const dots = shown.map(e => `<span class="cal-dot" style="background:${e.color}"></span>`).join("");
-    const tooltip = dayEvents.map(e => `${e.name}: ${e.matchup}`).join(" | ");
+    const pills = dayEvents.map(e => `
+      <div class="cal-event-pill" style="background:${e.color}">
+        <span class="pill-name">${e.name}: ${e.matchup}</span>
+        ${e.time || e.venue ? `<span class="pill-meta">${[e.time, e.venue].filter(Boolean).join(" · ")}</span>` : ""}
+      </div>
+    `).join("");
     cellsHtml += `
-      <div class="cal-day${outOfRange ? " out-of-range" : ""}${isToday ? " today" : ""}" ${tooltip ? `title="${tooltip.replace(/"/g, "'")}"` : ""}>
-        <span>${day}</span>
-        <div class="cal-dots">${dots}${extra > 0 ? `<span class="cal-more">+${extra}</span>` : ""}</div>
+      <div class="cal-day${outOfRange ? " out-of-range" : ""}${isToday ? " today" : ""}">
+        <span class="cal-daynum">${day}</span>
+        <div class="cal-events">${pills}</div>
       </div>
     `;
   }
 
-  monthDiv.innerHTML = `<h3>${monthName}</h3><div class="cal-grid">${cellsHtml}</div>`;
-  return monthDiv;
+  document.getElementById("cal-grid").innerHTML = cellsHtml;
 }
 
 function renderCalendar() {
-  const wrap = document.getElementById("calendar-months");
-  let cursor = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
-  const endMonth = new Date(HORIZON_END.getFullYear(), HORIZON_END.getMonth(), 1);
-  while (cursor <= endMonth) {
-    wrap.appendChild(buildMonth(cursor.getFullYear(), cursor.getMonth()));
-    cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
-  }
+  renderCalendarMonth();
 }
 
 function renderSection(sport, events) {
