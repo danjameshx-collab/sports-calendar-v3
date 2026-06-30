@@ -278,9 +278,94 @@
     border-top: 1px solid var(--border);
   }
   .loading { color: var(--muted); padding: 18px 20px; font-size: 0.9rem; }
+
+  /* Password gate */
+  #pw-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: radial-gradient(circle at 20% -10%, #1b2236 0%, #0b0e14 55%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #pw-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 48px 44px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  #pw-box h2 {
+    margin: 0 0 6px;
+    font-size: 1.6rem;
+    background: linear-gradient(90deg, #ff6a3d, #ffd23f, #2e86de, #1aab9b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 800;
+  }
+  #pw-box p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 0 0 28px;
+  }
+  #pw-input {
+    width: 100%;
+    padding: 13px 16px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+    margin-bottom: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  #pw-input:focus { border-color: #2e86de; }
+  #pw-input.error { border-color: #d7263d; animation: shake 0.35s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60% { transform: translateX(-6px); }
+    40%,80% { transform: translateX(6px); }
+  }
+  #pw-submit {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #2e86de, #1aab9b);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.2s;
+  }
+  #pw-submit:hover { opacity: 0.88; }
+  #pw-error {
+    color: #d7263d;
+    font-size: 0.85rem;
+    margin-top: 12px;
+    min-height: 1.2em;
+  }
 </style>
 </head>
 <body>
+
+<div id="pw-gate">
+  <div id="pw-box">
+    <h2>NextUp</h2>
+    <p>Enter the password to access the sports calendar.</p>
+    <input id="pw-input" type="password" placeholder="Password" autocomplete="current-password" />
+    <button id="pw-submit" type="button">Unlock</button>
+    <div id="pw-error"></div>
+  </div>
+</div>
 
 <header>
   <h1>Major Sports Events Calendar</h1>
@@ -293,6 +378,44 @@
   Live data for NFL · NBA · UFC powered by API-Sports (free tier, only returns fixtures within its allowed date window).
   Boxing · ONE Championship · Athletics · IPL are hand-curated from public schedules and may shift as promotions confirm cards, verify close to the date.
 </footer>
+
+<script>
+(function () {
+  const HASH = "75093a6b116d2a3678a5cf657dab9a691ff90c03dabb19816978241aecd1f608";
+  const gate = document.getElementById("pw-gate");
+  const input = document.getElementById("pw-input");
+  const btn = document.getElementById("pw-submit");
+  const errEl = document.getElementById("pw-error");
+
+  if (sessionStorage.getItem("nextup_auth") === "1") {
+    gate.remove();
+    return;
+  }
+
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function attempt() {
+    const hash = await sha256(input.value);
+    if (hash === HASH) {
+      sessionStorage.setItem("nextup_auth", "1");
+      gate.remove();
+    } else {
+      errEl.textContent = "Incorrect password — please try again.";
+      input.classList.add("error");
+      input.value = "";
+      setTimeout(() => input.classList.remove("error"), 400);
+      input.focus();
+    }
+  }
+
+  btn.addEventListener("click", attempt);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") attempt(); });
+  input.focus();
+})();
+</script>
 
 <script>
 const API_KEY = "019bab0094679bd6e4f3f3e4f62894a3";
