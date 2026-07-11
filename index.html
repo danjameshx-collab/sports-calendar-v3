@@ -259,6 +259,16 @@
   .cal-day.empty { background: transparent; border-color: transparent; }
   .cal-day.out-of-range { opacity: 0.35; }
   .cal-day.today { border-color: #fff; box-shadow: 0 0 0 1px #fff inset; }
+  .cal-day.has-events { cursor: pointer; }
+  .cal-day.has-events:hover,
+  .cal-day.has-events:focus-visible {
+    border-color: #4a5a86;
+    background: #1c2336;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+    outline: none;
+    z-index: 2;
+  }
   .cal-daynum {
     font-weight: 700;
     font-size: 0.9rem;
@@ -300,6 +310,144 @@
     padding: 1px 0;
     flex-shrink: 0;
   }
+
+  /* Hover preview tooltip */
+  .cal-preview-tip {
+    position: fixed;
+    z-index: 999;
+    min-width: 190px;
+    max-width: 260px;
+    background: #1c2335;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition: opacity 0.14s ease, transform 0.14s ease;
+    display: none;
+  }
+  .cal-preview-tip.show { opacity: 1; transform: translateY(0); }
+  .cal-preview-tip .tip-date {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .cal-preview-tip .tip-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 0.82rem;
+  }
+  .cal-preview-tip .tip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .cal-preview-tip .tip-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .cal-preview-tip .tip-hint {
+    margin-top: 8px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* Day detail modal */
+  .day-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,7,12,0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+    padding: 20px;
+  }
+  .day-modal-backdrop.open { opacity: 1; pointer-events: auto; }
+  .day-modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 28px 70px rgba(0,0,0,0.6);
+    transform: scale(0.94) translateY(8px);
+    transition: transform 0.2s ease;
+  }
+  .day-modal-backdrop.open .day-modal { transform: scale(1) translateY(0); }
+  .day-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--panel);
+  }
+  .day-modal-header h3 { margin: 0; font-size: 1.15rem; font-weight: 700; }
+  .day-modal-close {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+  }
+  .day-modal-close:hover { background: #1d2436; }
+  .day-modal-body {
+    padding: 16px 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .day-modal-event {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .day-modal-event .dm-sport {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #0b0e14;
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+  .day-modal-event .dm-matchup { font-weight: 700; font-size: 1.05rem; line-height: 1.35; }
+  .day-modal-event .dm-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.88rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .day-modal-event .dm-venue { font-size: 0.82rem; color: var(--muted); }
+
   .empty-note {
     grid-column: 1 / -1;
     color: var(--muted);
@@ -334,6 +482,10 @@
     .cal-event-pill .pill-name { font-size: 0.6rem; }
     .cal-event-pill .pill-meta { font-size: 0.5rem; }
     .cal-more { font-size: 0.58rem; }
+    .day-modal { max-width: 100%; border-radius: 14px; }
+    .day-modal-header { padding: 14px 16px; }
+    .day-modal-body { padding: 12px 16px 18px; }
+    .cal-preview-tip { display: none !important; }
   }
 </style>
 </head>
@@ -499,6 +651,116 @@ function buildCalendarShell() {
     calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1);
     renderCalendarMonth();
   });
+
+  const calGrid = details.querySelector("#cal-grid");
+  calGrid.addEventListener("mouseover", e => {
+    const cell = e.target.closest(".cal-day.has-events");
+    if (cell) showPreviewTip(cell);
+  });
+  calGrid.addEventListener("mouseout", e => {
+    const cell = e.target.closest(".cal-day.has-events");
+    if (cell && !cell.contains(e.relatedTarget)) hidePreviewTip();
+  });
+  calGrid.addEventListener("focusin", e => {
+    const cell = e.target.closest(".cal-day.has-events");
+    if (cell) showPreviewTip(cell);
+  });
+  calGrid.addEventListener("focusout", () => hidePreviewTip());
+  calGrid.addEventListener("click", e => {
+    const cell = e.target.closest(".cal-day.has-events");
+    if (cell) openDayModal(cell.dataset.date);
+  });
+  calGrid.addEventListener("keydown", e => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const cell = e.target.closest(".cal-day.has-events");
+    if (cell) { e.preventDefault(); openDayModal(cell.dataset.date); }
+  });
+}
+
+let previewTipEl = null;
+
+function showPreviewTip(cellEl) {
+  const dateStr = cellEl.dataset.date;
+  const events = ALL_EVENTS.filter(e => e.date === dateStr);
+  if (events.length === 0 || !previewTipEl) return;
+
+  const dateObj = new Date(dateStr + "T00:00:00");
+  const label = dateObj.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  previewTipEl.innerHTML = `
+    <div class="tip-date">${label}</div>
+    ${events.slice(0, 5).map(e => `
+      <div class="tip-row">
+        <span class="tip-dot" style="background:${e.color}"></span>
+        <span class="tip-name">${e.name}: ${e.matchup}</span>
+      </div>
+    `).join("")}
+    <div class="tip-hint">${events.length > 5 ? `+${events.length - 5} more — click for details` : "Click for details"}</div>
+  `;
+
+  previewTipEl.style.display = "block";
+  previewTipEl.classList.remove("show");
+  const cellRect = cellEl.getBoundingClientRect();
+  const tipRect = previewTipEl.getBoundingClientRect();
+  let top = cellRect.top - tipRect.height - 10;
+  if (top < 8) top = cellRect.bottom + 10;
+  let left = cellRect.left + cellRect.width / 2 - tipRect.width / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
+  previewTipEl.style.top = `${top}px`;
+  previewTipEl.style.left = `${left}px`;
+  requestAnimationFrame(() => previewTipEl.classList.add("show"));
+}
+
+function hidePreviewTip() {
+  if (!previewTipEl) return;
+  previewTipEl.classList.remove("show");
+}
+
+function buildDayModal() {
+  previewTipEl = document.createElement("div");
+  previewTipEl.className = "cal-preview-tip";
+  document.body.appendChild(previewTipEl);
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "day-modal-backdrop";
+  backdrop.id = "day-modal-backdrop";
+  backdrop.innerHTML = `
+    <div class="day-modal" role="dialog" aria-modal="true" aria-labelledby="day-modal-title">
+      <div class="day-modal-header">
+        <h3 id="day-modal-title"></h3>
+        <button type="button" class="day-modal-close" id="day-modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="day-modal-body" id="day-modal-body"></div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+
+  backdrop.addEventListener("click", e => { if (e.target === backdrop) closeDayModal(); });
+  backdrop.querySelector("#day-modal-close").addEventListener("click", closeDayModal);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && backdrop.classList.contains("open")) closeDayModal();
+  });
+}
+
+function openDayModal(dateStr) {
+  hidePreviewTip();
+  const events = ALL_EVENTS.filter(e => e.date === dateStr);
+  const dateObj = new Date(dateStr + "T00:00:00");
+  const label = dateObj.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  document.getElementById("day-modal-title").textContent = label;
+  document.getElementById("day-modal-body").innerHTML = events.map(e => `
+    <div class="day-modal-event">
+      <span class="dm-sport" style="background:${e.color}">${e.name}</span>
+      <div class="dm-matchup">${e.matchup}</div>
+      <div class="dm-meta">${e.time ? `<span>🕒 ${e.time}</span>` : ""}</div>
+      ${e.venue ? `<div class="dm-venue">📍 ${e.venue}</div>` : ""}
+    </div>
+  `).join("");
+  document.getElementById("day-modal-backdrop").classList.add("open");
+}
+
+function closeDayModal() {
+  const backdrop = document.getElementById("day-modal-backdrop");
+  if (backdrop) backdrop.classList.remove("open");
 }
 
 function renderCalendarMonth() {
@@ -535,8 +797,11 @@ function renderCalendarMonth() {
         ${e.time || e.venue ? `<span class="pill-meta">${[e.time, e.venue].filter(Boolean).join(" · ")}</span>` : ""}
       </div>
     `).join("") + (hiddenCount > 0 ? `<div class="cal-more">+${hiddenCount} more</div>` : "");
+    const hasEvents = dayEvents.length > 0;
     cellsHtml += `
-      <div class="cal-day${outOfRange ? " out-of-range" : ""}${isToday ? " today" : ""}">
+      <div class="cal-day${outOfRange ? " out-of-range" : ""}${isToday ? " today" : ""}${hasEvents ? " has-events" : ""}"
+        data-date="${dateStr}"
+        ${hasEvents ? 'tabindex="0" role="button" aria-haspopup="dialog"' : ""}>
         <span class="cal-daynum">${day}</span>
         <div class="cal-events">${pills}</div>
       </div>
@@ -628,6 +893,7 @@ async function init() {
 
   const todayStr = NOW.toISOString().slice(0, 10);
 
+  buildDayModal();
   buildCalendarShell();
 
   // Athletics, Boxing, IPL Cricket, ONE Championship have no API-Sports coverage - always curated.
