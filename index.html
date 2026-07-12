@@ -625,10 +625,16 @@ const CURATED = {
     { date: "2026-09-05", time: "TBD", matchup: "Katie Taylor vs Flora Pili (Taylor's retirement fight)", venue: "Croke Park, Dublin, Ireland", note: "Sold out at 82,000; first boxing event at Croke Park since 1972" },
   ],
   ufc: [
-    { date: "2026-07-11", time: "TBD", matchup: "UFC 329: International Fight Week (incl. Pimblett vs Saint Denis)", venue: "Las Vegas, NV" },
-    { date: "2026-08-01", time: "TBD", matchup: "UFC Fight Night: Ankalaev vs Rountree Jr.", venue: "Etihad Arena, Abu Dhabi" },
+    { date: "2026-07-18", time: "TBD", matchup: "UFC Fight Night: Du Plessis vs. Usman", venue: "Paycom Center, Oklahoma City, OK" },
+    { date: "2026-07-25", time: "TBD", matchup: "UFC Fight Night: Ankalaev vs. Rountree Jr.", venue: "Etihad Arena, Yas Island, Abu Dhabi, UAE" },
+    { date: "2026-08-01", time: "TBD", matchup: "UFC Fight Night: Medić vs. Rodriguez", venue: "Belgrade Arena, Belgrade, Serbia" },
+    { date: "2026-08-08", time: "TBD", matchup: "UFC Fight Night: Gamrot vs. Salkilld", venue: "Meta Apex, Las Vegas, NV" },
     { date: "2026-08-15", time: "TBD", matchup: "UFC 330: Makhachev vs Machado Garry", venue: "Xfinity Mobile Arena, Philadelphia" },
-    { date: "2026-09-05", time: "TBD", matchup: "UFC Fight Night (card TBA)", venue: "Venue TBA" },
+    { date: "2026-08-22", time: "TBD", matchup: "UFC Fight Night: Hernandez vs. Rodrigues", venue: "Golden 1 Center, Sacramento, CA" },
+    { date: "2026-08-30", time: "TBD", matchup: "UFC Fight Night: Nurmagomedov vs. Song", venue: "SPD Bank Oriental Sports Center, Shanghai, China" },
+    { date: "2026-09-05", time: "TBD", matchup: "UFC Fight Night 287 (UFC Paris)", venue: "Accor Arena, Paris, France" },
+    { date: "2026-09-12", time: "TBD", matchup: "UFC Fight Night 288", venue: "Desert Diamond Arena, Glendale, AZ" },
+    { date: "2026-09-19", time: "TBD", matchup: "UFC 331", venue: "Venue TBA, U.S." },
   ],
   one: [
     { date: "2026-07-18", time: "8:00 AM ICT / Jul 17, 9:00 PM ET", matchup: "ONE Fight Night 45: Lessei vs. Rabah", venue: "Lumpinee Stadium, Bangkok" },
@@ -1007,11 +1013,18 @@ async function fetchLiveAPISports(url) {
 async function buildLiveSection(sport, apiUrl, mapFn) {
   const result = await fetchLiveAPISports(apiUrl);
   if (result.ok && result.response.length > 0) {
-    renderSection(sport, result.response.map(mapFn));
-  } else {
-    // Free-tier date/season restriction (or no live games) - fall back to curated list.
-    renderSection(sport, CURATED[sport.id]);
+    const mapped = result.response.map(mapFn);
+    // The API is only queried for a single literal date, which can return fixtures
+    // that already happened (e.g. finished fights from the same calendar day) rather
+    // than anything upcoming. Only trust the live data if it actually has events
+    // still ahead of us; otherwise the curated list is more useful than an empty section.
+    if (mapped.some(e => e.date && inWindow(e.date))) {
+      renderSection(sport, mapped);
+      return;
+    }
   }
+  // Free-tier date/season restriction (or no live games in window) - fall back to curated list.
+  renderSection(sport, CURATED[sport.id]);
 }
 
 async function init() {
