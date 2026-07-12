@@ -453,7 +453,16 @@
     box-shadow: 0 28px 70px rgba(0,0,0,0.6);
     transform: scale(0.94) translateY(8px);
     transition: transform 0.2s ease;
+    scrollbar-width: thin;
+    scrollbar-color: #3a466a transparent;
   }
+  .day-modal::-webkit-scrollbar { width: 8px; }
+  .day-modal::-webkit-scrollbar-track { background: transparent; }
+  .day-modal::-webkit-scrollbar-thumb {
+    background: #3a466a;
+    border-radius: 8px;
+  }
+  .day-modal::-webkit-scrollbar-thumb:hover { background: #4a5a86; }
   .day-modal-backdrop.open .day-modal { transform: scale(1) translateY(0); }
   .day-modal-header {
     display: flex;
