@@ -75,6 +75,7 @@
     box-shadow: 0 6px 24px rgba(0,0,0,0.28);
     overflow: hidden;
     animation: fadeInUp 0.35s ease both;
+    scroll-margin-top: 16px;
   }
   .sport-header {
     display: flex;
@@ -160,6 +161,75 @@
     padding: 4px 10px;
     border-radius: 20px;
     margin-bottom: 1px;
+  }
+  .sport-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+    gap: 10px;
+    padding: 4px 4px 16px;
+    margin-bottom: 4px;
+  }
+  .sport-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 6px 8px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: inherit;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .sport-nav-item:hover,
+  .sport-nav-item:focus-visible {
+    transform: translateY(-2px);
+    border-color: #3a466a;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+    outline: none;
+  }
+  .sport-nav-item.active {
+    border-color: var(--accent, #4a5a86);
+    background: var(--panel-2);
+    box-shadow: 0 0 0 2px var(--accent, #4a5a86) inset, 0 6px 14px rgba(0,0,0,0.35);
+  }
+  .sport-nav-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 2px solid var(--accent, var(--border));
+    flex-shrink: 0;
+  }
+  .sport-nav-icon img {
+    height: 23px;
+    width: auto;
+    max-width: 31px;
+    object-fit: contain;
+  }
+  .sport-nav-icon .emoji { font-size: 1.2rem; }
+  .sport-nav-icon.all-icon {
+    background: var(--panel-2);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    align-items: stretch;
+    justify-items: stretch;
+    gap: 3px;
+    padding: 7px;
+  }
+  .sport-nav-icon.all-icon span { border-radius: 2px; }
+  .sport-nav-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    letter-spacing: 0.1px;
   }
   .calendar-section {
     margin-bottom: 26px;
@@ -469,6 +539,13 @@
     header h1 { font-size: 1.8rem; }
     header p { font-size: 0.9rem; }
     main { padding: 20px 10px 40px; }
+    .sport-nav { grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 6px; padding: 4px 4px 10px; }
+    .sport-nav-item { padding: 6px 4px 4px; gap: 4px; }
+    .sport-nav-icon { width: 34px; height: 34px; }
+    .sport-nav-icon img { height: 18px; max-width: 25px; }
+    .sport-nav-icon .emoji { font-size: 1rem; }
+    .sport-nav-icon.all-icon { padding: 5px; gap: 2px; }
+    .sport-nav-label { font-size: 0.56rem; }
     .sport-header { padding: 14px 16px; font-size: 1.02rem; }
     .events-grid { padding: 14px 14px 16px; gap: 10px; }
     .event-card { padding: 16px 16px; }
@@ -812,9 +889,58 @@ function renderCalendar() {
   renderCalendarMonth();
 }
 
+let currentSportFilter = "all";
+
+function applySportFilter(id) {
+  currentSportFilter = id;
+  document.querySelectorAll(".sport-section").forEach(sec => {
+    sec.style.display = (id === "all" || sec.id === `sport-${id}`) ? "" : "none";
+  });
+  document.querySelectorAll(".sport-nav-item").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.target === id);
+  });
+  document.getElementById("sport-nav").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function buildSportNav() {
+  const nav = document.createElement("div");
+  nav.className = "sport-nav";
+  nav.id = "sport-nav";
+
+  const sportButtons = SPORTS.map(sport => {
+    const icon = sport.logo
+      ? `<img src="${sport.logo}" alt="${sport.name} logo">`
+      : `<span class="emoji">${sport.emoji}</span>`;
+    return `
+      <button type="button" class="sport-nav-item" data-target="${sport.id}" style="--accent:${sport.color}">
+        <span class="sport-nav-icon">${icon}</span>
+        <span class="sport-nav-label">${sport.name}</span>
+      </button>
+    `;
+  }).join("");
+
+  const allSwatches = SPORTS.slice(0, 4).map(s => `<span style="background:${s.color}"></span>`).join("");
+  const allButton = `
+    <button type="button" class="sport-nav-item active" data-target="all" style="--accent:#6c7a99">
+      <span class="sport-nav-icon all-icon">${allSwatches}</span>
+      <span class="sport-nav-label">All Sports</span>
+    </button>
+  `;
+
+  nav.innerHTML = sportButtons + allButton;
+  document.getElementById("app").appendChild(nav);
+
+  nav.addEventListener("click", e => {
+    const btn = e.target.closest(".sport-nav-item");
+    if (!btn) return;
+    applySportFilter(btn.dataset.target);
+  });
+}
+
 function renderSection(sport, events) {
   const section = document.createElement("section");
   section.className = "sport-section";
+  section.id = `sport-${sport.id}`;
 
   const header = document.createElement("div");
   header.className = "sport-header";
@@ -857,6 +983,10 @@ function renderSection(sport, events) {
   section.appendChild(grid);
   document.getElementById("app").appendChild(section);
 
+  if (currentSportFilter !== "all" && sport.id !== currentSportFilter) {
+    section.style.display = "none";
+  }
+
   // header badge count should reflect filtered count, not raw curated count
   header.querySelector(".badge").textContent = `${filtered.length} upcoming`;
 
@@ -890,6 +1020,7 @@ async function init() {
 
   const todayStr = NOW.toISOString().slice(0, 10);
 
+  buildSportNav();
   buildDayModal();
   buildCalendarShell();
 
