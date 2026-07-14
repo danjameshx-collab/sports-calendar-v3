@@ -21,6 +21,9 @@
     --ipl: #8e44ad;
     --athletics: #2e86de;
     --international: #c9a227;
+    --tag-cricket: #8e44ad;
+    --tag-football: #2ecc71;
+    --tag-rugby: #a0522d;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -161,12 +164,29 @@
     border-radius: 20px;
     margin-bottom: 1px;
   }
+  .womens-tag {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+    background: #ff3fa4;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 1px;
+    margin-left: 8px;
+  }
   .sport-nav {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
     gap: 12px;
     padding: 4px 4px 18px;
     margin-bottom: 4px;
+  }
+  #international-sub-nav {
+    grid-template-columns: repeat(4, 1fr);
   }
   .sport-nav-item {
     display: flex;
@@ -662,10 +682,15 @@ const CURATED = {
     { date: "2026-07-14", time: "11:00 AM BST", matchup: "India tour of England: 1st ODI", venue: "Edgbaston, Birmingham", sportTag: "Cricket" },
     { date: "2026-07-15", time: "3:00 PM ET", matchup: "Semifinal 2: England vs Argentina", venue: "FIFA World Cup 2026, Mercedes-Benz Stadium, Atlanta, GA", note: "England beat Norway 2-1 (AET) and Argentina beat Switzerland 3-1 in the quarterfinals", sportTag: "Football" },
     { date: "2026-07-16", time: "TBD", matchup: "India tour of England: 2nd ODI", venue: "Sophia Gardens, Cardiff", sportTag: "Cricket" },
+    { date: "2026-07-15", time: "9:45 AM GMT", matchup: "West Indies Women tour of Ireland: 3rd ODI", venue: "Bready Cricket Club, Magheramason, Bready", sportTag: "Cricket", womens: true },
+    { date: "2026-07-16", time: "TBD", matchup: "West Indies vs New Zealand, 3rd ODI", venue: "Guyana National Stadium, Providence, Guyana", sportTag: "Cricket" },
     { date: "2026-07-18", time: "5:00 PM ET", matchup: "Third-place playoff", venue: "FIFA World Cup 2026, Hard Rock Stadium, Miami Gardens, FL", sportTag: "Football" },
-    { date: "2026-07-18", time: "TBD", matchup: "New Zealand vs Ireland, Japan vs France, Australia vs Italy, Fiji vs Scotland, South Africa vs Wales, Argentina vs England (Nations Championship Round 3)", venue: "Various venues", sportTag: "Rugby" },
+    { date: "2026-07-18", time: "TBD", matchup: "New Zealand vs Ireland", venue: "Eden Park, Auckland", note: "Nations Championship, Round 3", sportTag: "Rugby" },
+    { date: "2026-07-18", time: "TBD", matchup: "Argentina vs England", venue: "Estadio Único Madre de Ciudades, Santiago del Estero", note: "Nations Championship, Round 3", sportTag: "Rugby" },
     { date: "2026-07-19", time: "3:00 PM ET", matchup: "Final", venue: "FIFA World Cup 2026, MetLife Stadium, NJ", sportTag: "Football" },
     { date: "2026-07-19", time: "TBD", matchup: "India tour of England: 3rd ODI", venue: "Lord's, London", sportTag: "Cricket" },
+    { date: "2026-07-25", time: "TBD", matchup: "West Indies vs Pakistan, 1st Test", venue: "Brian Lara Cricket Academy, Tarouba, Trinidad", note: "5-day Test, runs Jul 25-29", sportTag: "Cricket" },
+    { date: "2026-08-02", time: "TBD", matchup: "West Indies vs Pakistan, 2nd Test", venue: "Queen's Park Oval, Port of Spain, Trinidad", note: "5-day Test, runs Aug 2-6", sportTag: "Cricket" },
     { date: "2026-08-19", time: "TBD", matchup: "England vs Pakistan, 1st Test", venue: "Headingley, Leeds", note: "5-day Test, runs Aug 19-23", sportTag: "Cricket" },
     { date: "2026-08-22", time: "TBD", matchup: "South Africa vs New Zealand (Springboks vs All Blacks, Test 1)", venue: "Ellis Park, Johannesburg", note: "First meeting since 1996 All Blacks tour of South Africa", sportTag: "Rugby" },
     { date: "2026-08-27", time: "TBD", matchup: "England vs Pakistan, 2nd Test", venue: "Lord's, London", note: "5-day Test, runs Aug 27-31", sportTag: "Cricket" },
@@ -675,17 +700,19 @@ const CURATED = {
     { date: "2026-09-05", time: "TBD", matchup: "Argentina vs Australia (Puma Trophy, 2nd Test)", venue: "Estadio Malvinas Argentinas, Mendoza, Argentina", sportTag: "Rugby" },
     { date: "2026-09-09", time: "TBD", matchup: "England vs Pakistan, 3rd Test", venue: "Edgbaston, Birmingham", note: "5-day Test, runs Sep 9-13", sportTag: "Cricket" },
     { date: "2026-09-12", time: "TBD", matchup: "South Africa vs New Zealand (Springboks vs All Blacks, Test 4)", venue: "M&T Bank Stadium, Baltimore, MD", note: "Final Test of the series, played in the United States", sportTag: "Rugby" },
-    { date: "2026-09-15", time: "TBD", matchup: "England vs Sri Lanka: 1st T20I", venue: "Southampton, England", sportTag: "Cricket" },
-    { date: "2026-09-17", time: "TBD", matchup: "England vs Sri Lanka: 2nd T20I", venue: "Sophia Gardens, Cardiff", sportTag: "Cricket" },
-    { date: "2026-09-17", time: "TBD", matchup: "Cricket at the Asian Games: Women's tournament begins", venue: "Korogi Athletic Park, Aichi-Nagoya, Japan", note: "Medal matches around Sep 22", sportTag: "Cricket" },
-    { date: "2026-09-19", time: "TBD", matchup: "England vs Sri Lanka: 3rd T20I", venue: "Old Trafford, Manchester", sportTag: "Cricket" },
-    { date: "2026-09-22", time: "TBD", matchup: "England vs Sri Lanka: 1st ODI", venue: "Riverside Ground, Chester-le-Street", sportTag: "Cricket" },
-    { date: "2026-09-24", time: "TBD", matchup: "England vs Sri Lanka: 2nd ODI", venue: "Headingley, Leeds", sportTag: "Cricket" },
-    { date: "2026-09-24", time: "TBD", matchup: "Cricket at the Asian Games: Men's tournament begins", venue: "Korogi Athletic Park, Aichi-Nagoya, Japan", note: "Medal matches around Oct 3", sportTag: "Cricket" },
+    { date: "2026-09-24", time: "TBD", matchup: "Australia vs South Africa, 1st ODI", venue: "Kingsmead, Durban", sportTag: "Cricket" },
     { date: "2026-09-26", time: "7:45 PM BST", matchup: "England vs Spain (UEFA Nations League, League A Group 3)", venue: "Wembley Stadium, London", sportTag: "Football" },
-    { date: "2026-09-27", time: "TBD", matchup: "England vs Sri Lanka: 3rd ODI", venue: "The Oval, London", sportTag: "Cricket" },
+    { date: "2026-09-27", time: "TBD", matchup: "Australia vs South Africa, 2nd ODI", venue: "The Wanderers, Johannesburg", sportTag: "Cricket" },
+    { date: "2026-09-27", time: "TBD", matchup: "West Indies tour of India: 1st ODI", venue: "Greenfield International Stadium, Thiruvananthapuram", sportTag: "Cricket" },
     { date: "2026-09-27", time: "TBD", matchup: "Australia vs South Africa (Wallabies vs Springboks, Mandela Challenge Plate)", venue: "Optus Stadium, Perth", note: "Australia's only home Test against South Africa in 2026", sportTag: "Rugby" },
     { date: "2026-09-29", time: "TBD", matchup: "Czechia vs England (UEFA Nations League, League A Group 3)", venue: "Czechia", sportTag: "Football" },
+    { date: "2026-09-30", time: "TBD", matchup: "Australia vs South Africa, 3rd ODI", venue: "Senwes Park, Potchefstroom", sportTag: "Cricket" },
+    { date: "2026-09-30", time: "TBD", matchup: "West Indies tour of India: 2nd ODI", venue: "Barsapara Stadium, Guwahati", sportTag: "Cricket" },
+    { date: "2026-10-03", time: "TBD", matchup: "West Indies tour of India: 3rd ODI", venue: "Maharaja Yadavindra Singh Stadium, New Chandigarh", sportTag: "Cricket" },
+    { date: "2026-10-06", time: "7:00 PM IST", matchup: "West Indies tour of India: 1st T20I", venue: "Ekana Stadium, Lucknow", sportTag: "Cricket" },
+    { date: "2026-10-09", time: "7:00 PM IST", matchup: "West Indies tour of India: 2nd T20I", venue: "JSCA International Stadium, Ranchi", sportTag: "Cricket" },
+    { date: "2026-10-10", time: "TBD", matchup: "Australia vs New Zealand", venue: "Eden Park, Auckland", note: "Bledisloe Cup, 1st Test", sportTag: "Rugby" },
+    { date: "2026-10-11", time: "7:00 PM IST", matchup: "West Indies tour of India: 3rd T20I", venue: "Holkar Stadium, Indore", sportTag: "Cricket" },
   ],
 };
 
@@ -953,6 +980,61 @@ function buildSportNav() {
   });
 }
 
+let currentIntFilter = "all";
+
+const INT_SUB_NAV_ITEMS = [
+  { tag: "Cricket", emoji: "🏏", color: "var(--tag-cricket)" },
+  { tag: "Football", emoji: "⚽", color: "var(--tag-football)" },
+  { tag: "Rugby", emoji: "🏉", color: "var(--tag-rugby)" },
+];
+
+function applyIntFilter(tag) {
+  currentIntFilter = tag;
+  const grid = document.querySelector("#sport-international .events-grid");
+  if (!grid) return;
+  const cards = grid.querySelectorAll(".event-card[data-tag]");
+  let visibleCount = 0;
+  cards.forEach(card => {
+    const show = tag === "all" || card.dataset.tag === tag;
+    card.style.display = show ? "" : "none";
+    if (show) visibleCount++;
+  });
+  document.querySelectorAll("#international-sub-nav .sport-nav-item").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.target === tag);
+  });
+  const badge = document.querySelector("#sport-international .badge");
+  if (badge) badge.textContent = `${visibleCount} upcoming`;
+}
+
+function buildInternationalSubNav() {
+  const nav = document.createElement("div");
+  nav.className = "sport-nav";
+  nav.id = "international-sub-nav";
+
+  const tagButtons = INT_SUB_NAV_ITEMS.map(item => `
+    <button type="button" class="sport-nav-item" data-target="${item.tag}" style="--accent:${item.color}">
+      <span class="sport-nav-icon"><span class="emoji">${item.emoji}</span></span>
+      <span class="sport-nav-label">${item.tag}</span>
+    </button>
+  `).join("");
+
+  const allButton = `
+    <button type="button" class="sport-nav-item active" data-target="all" style="--accent:var(--international)">
+      <span class="sport-nav-icon"><span class="emoji">🌍</span></span>
+      <span class="sport-nav-label">All Sports</span>
+    </button>
+  `;
+
+  nav.innerHTML = tagButtons + allButton;
+  document.getElementById("app").appendChild(nav);
+
+  nav.addEventListener("click", e => {
+    const btn = e.target.closest(".sport-nav-item");
+    if (!btn) return;
+    applyIntFilter(btn.dataset.target);
+  });
+}
+
 function renderSection(sport, events) {
   const section = document.createElement("section");
   section.className = "sport-section";
@@ -982,8 +1064,10 @@ function renderSection(sport, events) {
     filtered.forEach(e => {
       const card = document.createElement("div");
       card.className = "event-card";
+      if (e.sportTag) card.dataset.tag = e.sportTag;
       card.innerHTML = `
         ${e.sportTag ? `<span class="sport-tag">${SPORT_TAG_EMOJI[e.sportTag] ? SPORT_TAG_EMOJI[e.sportTag] + " " : ""}${e.sportTag}</span>` : ""}
+        ${e.womens ? `<span class="womens-tag">Womens</span>` : ""}
         <div class="matchup">${e.matchup}</div>
         <div class="meta">
           <span>📅 ${e.date ? fmtDate(e.date) : "Date TBC"}</span>
@@ -1086,6 +1170,7 @@ async function init() {
   );
 
   // International section always goes last: major cross-sport global events (no single API covers all of these).
+  buildInternationalSubNav();
   renderSection(sportById("international"), CURATED.international);
 
   renderCalendar();
