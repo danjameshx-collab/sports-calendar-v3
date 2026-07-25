@@ -1,0 +1,55 @@
+name: Safe Browsing check
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check Google Safe Browsing status
+        id: check
+        env:
+          SAFE_BROWSING_API_KEY: ${{ secrets.SAFE_BROWSING_API_KEY }}
+          SITE_URL: https://sports-calendar-v3.vercel.app/
+        run: node scripts/check-safe-browsing.mjs
+
+      - name: Open issue if flagged
+        if: steps.check.outputs.flagged == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              labels: "safe-browsing",
+            });
+            if (issues.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: "Site flagged by Google Safe Browsing",
+                body: [
+                  "The daily Safe Browsing check detected a flag on the deployed site.",
+                  "",
+                  "Next steps:",
+                  "1. Check the Search Console Security Issues report for the reason.",
+                  "2. Request a review: https://safebrowsing.google.com/safebrowsing/report_error/",
+                  "3. See this workflow run's logs for the raw API response.",
+                ].join("\n"),
+                labels: ["safe-browsing"],
+              });
+            }
