@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { appendFileSync } from "node:fs";
 
-const SITE_URL = process.env.SITE_URL || "https://sports-calendar-v3.vercel.app/";
+const SITE_URL = process.env.SITE_URL || "https://sports-calendar-v4.vercel.app/";
 const API_KEY = process.env.SAFE_BROWSING_API_KEY;
 
 function setOutput(name, value) {
