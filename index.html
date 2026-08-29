@@ -19,6 +19,7 @@
     --boxing: #c9b037;
     --ufc: #d62246;
     --ipl: #8e44ad;
+    --epl: #3d0f5c;
     --athletics: #2e86de;
     --international: #c9a227;
     --tag-cricket: #8e44ad;
@@ -605,7 +606,7 @@
 
 <footer>
   Live data for NFL · NBA · UFC powered by API-Sports (free tier, only returns fixtures within its allowed date window).
-  Boxing · Athletics · IPL are hand-curated from public schedules and may shift as promotions confirm cards, verify close to the date.
+  Boxing · Athletics · IPL · Premier League are hand-curated from public schedules and may shift as promotions/broadcasters confirm cards and kickoff times, verify close to the date.
 </footer>
 
 <script>
@@ -617,6 +618,7 @@ const HORIZON_END = new Date(NOW.getTime() + HORIZON_DAYS * 86400000);
 const SPORTS = [
   { id: "athletics",  name: "Athletics",        emoji: "🏃", color: "var(--athletics)", logo: "https://upload.wikimedia.org/wikipedia/commons/b/be/World_Athletics_icon_logo.svg" },
   { id: "boxing",     name: "Boxing",           emoji: "🥊", color: "var(--boxing)", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYTwhG19SIwQ5PdZG1OhFRAcJV1jgv_PIEA&s" },
+  { id: "epl",        name: "Premier League",   emoji: "⚽", color: "var(--epl)" },
   { id: "ipl",        name: "IPL Cricket",      emoji: "🏏", color: "var(--ipl)", logo: "https://upload.wikimedia.org/wikipedia/commons/5/52/Ipl.svg" },
   { id: "nba",        name: "NBA",              emoji: "🏀", color: "var(--nba)", logo: "https://upload.wikimedia.org/wikipedia/en/0/03/National_Basketball_Association_logo.svg" },
   { id: "nfl",        name: "NFL",              emoji: "🏈", color: "var(--nfl)", logo: "https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg" },
@@ -676,6 +678,153 @@ const CURATED = {
   ipl: [
     { date: null, time: "", matchup: "IPL 2026 season has concluded (final was May 31, RCB beat GT to defend the title)", venue: "Next season (IPL 2027) confirmed for March 14 - May 30, 2027", note: "BCCI has now confirmed March 14 - May 30, 2027 as the window for IPL 2027 (a prepone from the usual late-March start to dodge peak summer heat), format staying at 74 matches (94-match expansion ruled out for now); retention lists are expected around September 2026, with a five-week franchise retention window reported opening mid-September and closing the third week of October 2026, though BCCI has not formally confirmed those exact dates; the Rishabh Pant-Kuldeep Yadav swap is complete and old news (confirmed late June 2026: Pant returns to Delhi Capitals at a pay cut, INR 15 crore vs. the INR 27 crore LSG paid in 2025; Kuldeep moved to Lucknow Super Giants at INR 13.5 crore); Hardik Pandya trade talk out of Mumbai Indians remains unresolved -- up to seven franchises (KKR still the reported frontrunner, needing a captain after Rahane's retirement, possibly with captaincy; also CSK, Delhi Capitals, LSG and Rajasthan Royals named as suitors) have made preliminary inquiries, but MI has not committed to a trade and Pandya remains at Mumbai's Centre of Excellence recovering fitness; in coaching news, Stephen Fleming has stepped down after 18 years as CSK head coach to become England's Test head coach, with CSK still searching for a replacement (Mike Hussey and Albie Morkel named as leading candidates); the next auction date remains unconfirmed and contested -- reports split between the 3rd week of November 2026 (mini-auction, mega auction not due until the 2028 cycle) and a provisional Dec 16, 2026 (possibly Abu Dhabi), with Mumbai or Dubai also floated -- BCCI has yet to confirm a date or venue; no IPL fixtures fall within the next 90 days." },
   ],
+  epl: (() => {
+    // Premier League 2026-27 fixtures (promoted clubs: Coventry City, Ipswich Town, Hull City).
+    // Home venues below are fixed facts (grounds don't move); kickoff times/dates are per the
+    // published fixture list as of Aug 2026 and are still subject to TV-selection reshuffling.
+    const VENUE = {
+      "Arsenal": "Emirates Stadium, London",
+      "Aston Villa": "Villa Park, Birmingham",
+      "AFC Bournemouth": "Vitality Stadium, Bournemouth",
+      "Brentford": "Gtech Community Stadium, Brentford",
+      "Brighton & Hove Albion": "Falmer Stadium (Amex Stadium), Brighton",
+      "Chelsea": "Stamford Bridge, London",
+      "Coventry City": "Coventry Building Society Arena, Coventry",
+      "Crystal Palace": "Selhurst Park, London",
+      "Everton": "Hill Dickinson Stadium, Liverpool",
+      "Fulham": "Craven Cottage, London",
+      "Hull City": "MKM Stadium, Hull",
+      "Ipswich Town": "Portman Road, Ipswich",
+      "Leeds United": "Elland Road, Leeds",
+      "Liverpool": "Anfield, Liverpool",
+      "Manchester City": "Etihad Stadium, Manchester",
+      "Manchester United": "Old Trafford, Manchester",
+      "Newcastle United": "St James' Park, Newcastle",
+      "Nottingham Forest": "The City Ground, Nottingham",
+      "Sunderland": "Stadium of Light, Sunderland",
+      "Tottenham Hotspur": "Tottenham Hotspur Stadium, London",
+    };
+    const NOTE_3PM = "Not selected for live UK broadcast, so this defaults to the traditional 3:00 PM Saturday kick-off slot; will move if picked up by a broadcaster closer to the date.";
+    const NOTE_UNCONFIRMED = "Kickoff time not yet announced by the Premier League/broadcasters as of late Aug 2026; provisional 3:00 PM UK slot shown until TV picks are confirmed.";
+    const F = (date, home, away, time, note) => ({
+      date, time, matchup: `${home} vs ${away}`, venue: VENUE[home], ...(note ? { note } : {}),
+    });
+    return [
+      F("2026-08-29", "Liverpool", "Nottingham Forest", "12:30 PM BST"),
+      F("2026-08-29", "AFC Bournemouth", "Everton", "3:00 PM BST", NOTE_3PM),
+      F("2026-08-29", "Coventry City", "Hull City", "3:00 PM BST", NOTE_3PM),
+      F("2026-08-29", "Tottenham Hotspur", "Newcastle United", "5:30 PM BST"),
+      F("2026-08-30", "Chelsea", "Brighton & Hove Albion", "2:00 PM BST"),
+      F("2026-08-30", "Leeds United", "Brentford", "2:00 PM BST"),
+      F("2026-08-30", "Sunderland", "Fulham", "2:00 PM BST"),
+      F("2026-08-30", "Manchester United", "Ipswich Town", "4:30 PM BST"),
+      F("2026-08-31", "Aston Villa", "Arsenal", "8:00 PM BST"),
+
+      F("2026-09-04", "Ipswich Town", "Liverpool", "8:00 PM BST"),
+      F("2026-09-05", "Newcastle United", "AFC Bournemouth", "12:30 PM BST"),
+      F("2026-09-05", "Brentford", "Sunderland", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-05", "Brighton & Hove Albion", "Leeds United", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-05", "Fulham", "Crystal Palace", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-05", "Manchester City", "Coventry City", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-05", "Nottingham Forest", "Tottenham Hotspur", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-05", "Hull City", "Aston Villa", "5:30 PM BST"),
+      F("2026-09-06", "Everton", "Manchester United", "2:00 PM BST"),
+      F("2026-09-06", "Arsenal", "Chelsea", "4:30 PM BST"),
+
+      F("2026-09-12", "AFC Bournemouth", "Brentford", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-12", "Aston Villa", "Nottingham Forest", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-12", "Chelsea", "Hull City", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-12", "Crystal Palace", "Ipswich Town", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-12", "Liverpool", "Fulham", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-12", "Tottenham Hotspur", "Everton", "5:30 PM BST"),
+      F("2026-09-12", "Sunderland", "Arsenal", "8:00 PM BST"),
+      F("2026-09-13", "Coventry City", "Brighton & Hove Albion", "2:00 PM BST"),
+      F("2026-09-13", "Manchester United", "Manchester City", "4:30 PM BST"),
+      F("2026-09-14", "Leeds United", "Newcastle United", "8:00 PM BST"),
+
+      F("2026-09-18", "Brentford", "Chelsea", "8:00 PM BST"),
+      F("2026-09-19", "Tottenham Hotspur", "Aston Villa", "12:30 PM BST"),
+      F("2026-09-19", "Brighton & Hove Albion", "Arsenal", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-19", "Everton", "Ipswich Town", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-19", "Leeds United", "Crystal Palace", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-19", "Newcastle United", "Hull City", "3:00 PM BST", NOTE_3PM),
+      F("2026-09-19", "Nottingham Forest", "Coventry City", "5:30 PM BST"),
+      F("2026-09-20", "AFC Bournemouth", "Liverpool", "2:00 PM BST"),
+      F("2026-09-20", "Manchester City", "Sunderland", "2:00 PM BST"),
+      F("2026-09-20", "Fulham", "Manchester United", "4:30 PM BST"),
+
+      // No PL fixtures Sep 26-Oct 3: three-week international break (Nations League/friendlies).
+
+      F("2026-10-10", "Arsenal", "Leeds United", "12:30 PM BST"),
+      F("2026-10-10", "Aston Villa", "Brentford", "3:00 PM BST", NOTE_3PM),
+      F("2026-10-10", "Chelsea", "AFC Bournemouth", "3:00 PM BST", NOTE_3PM),
+      F("2026-10-10", "Ipswich Town", "Fulham", "3:00 PM BST", NOTE_3PM),
+      F("2026-10-10", "Sunderland", "Brighton & Hove Albion", "3:00 PM BST", NOTE_3PM),
+      F("2026-10-10", "Manchester United", "Tottenham Hotspur", "5:30 PM BST"),
+      F("2026-10-11", "Crystal Palace", "Nottingham Forest", "2:00 PM BST"),
+      F("2026-10-11", "Hull City", "Everton", "2:00 PM BST"),
+      F("2026-10-11", "Liverpool", "Manchester City", "4:30 PM BST"),
+      F("2026-10-12", "Coventry City", "Newcastle United", "8:00 PM BST"),
+
+      F("2026-10-17", "Everton", "Chelsea", "12:30 PM BST"),
+      F("2026-10-17", "Brentford", "Liverpool", "3:00 PM BST", NOTE_3PM),
+      F("2026-10-17", "Fulham", "Hull City", "3:00 PM BST", NOTE_3PM),
+      F("2026-10-17", "Manchester City", "Ipswich Town", "3:00 PM BST", NOTE_3PM),
+      F("2026-10-17", "Newcastle United", "Aston Villa", "5:30 PM BST"),
+      F("2026-10-18", "AFC Bournemouth", "Sunderland", "2:00 PM BST"),
+      F("2026-10-18", "Brighton & Hove Albion", "Crystal Palace", "2:00 PM BST"),
+      F("2026-10-18", "Leeds United", "Manchester United", "2:00 PM BST"),
+      F("2026-10-18", "Nottingham Forest", "Arsenal", "4:30 PM BST"),
+      F("2026-10-19", "Tottenham Hotspur", "Coventry City", "8:00 PM BST"),
+
+      F("2026-10-23", "Ipswich Town", "Nottingham Forest", "8:00 PM BST"),
+      F("2026-10-24", "Aston Villa", "Manchester City", "12:30 PM BST"),
+      F("2026-10-24", "Arsenal", "Everton", "3:00 PM BST", NOTE_3PM),
+      F("2026-10-24", "Coventry City", "Fulham", "3:00 PM BST", NOTE_3PM),
+      F("2026-10-24", "Liverpool", "Brighton & Hove Albion", "3:00 PM BST", NOTE_3PM),
+      F("2026-10-24", "Chelsea", "Tottenham Hotspur", "5:30 PM BST"),
+      // Clocks go back to GMT in the UK on Oct 25.
+      F("2026-10-25", "Crystal Palace", "Newcastle United", "2:00 PM GMT"),
+      F("2026-10-25", "Hull City", "Brentford", "2:00 PM GMT"),
+      F("2026-10-25", "Manchester United", "AFC Bournemouth", "2:00 PM GMT"),
+      F("2026-10-25", "Sunderland", "Leeds United", "4:30 PM GMT"),
+
+      F("2026-10-31", "Chelsea", "Manchester United", "12:30 PM GMT"),
+      F("2026-10-31", "AFC Bournemouth", "Leeds United", "3:00 PM GMT", NOTE_3PM),
+      F("2026-10-31", "Brentford", "Nottingham Forest", "3:00 PM GMT", NOTE_3PM),
+      F("2026-10-31", "Coventry City", "Sunderland", "3:00 PM GMT", NOTE_3PM),
+      F("2026-10-31", "Hull City", "Ipswich Town", "3:00 PM GMT", NOTE_3PM),
+      F("2026-10-31", "Manchester City", "Brighton & Hove Albion", "3:00 PM GMT", NOTE_3PM),
+      F("2026-10-31", "Tottenham Hotspur", "Crystal Palace", "5:30 PM GMT"),
+      F("2026-11-01", "Aston Villa", "Fulham", "2:00 PM GMT"),
+      F("2026-11-01", "Liverpool", "Arsenal", "4:30 PM GMT"),
+      F("2026-11-02", "Newcastle United", "Everton", "8:00 PM GMT"),
+
+      F("2026-11-07", "Arsenal", "Hull City", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-07", "Brighton & Hove Albion", "Brentford", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-07", "Crystal Palace", "Liverpool", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-07", "Everton", "Coventry City", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-07", "Fulham", "Newcastle United", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-07", "Ipswich Town", "AFC Bournemouth", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-07", "Leeds United", "Tottenham Hotspur", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-07", "Manchester United", "Aston Villa", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-07", "Nottingham Forest", "Manchester City", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-07", "Sunderland", "Chelsea", "3:00 PM GMT", NOTE_UNCONFIRMED),
+
+      // No PL fixtures Nov 14: international break (World Cup qualifying window/friendlies).
+
+      F("2026-11-21", "AFC Bournemouth", "Nottingham Forest", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-21", "Aston Villa", "Sunderland", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-21", "Brentford", "Everton", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-21", "Chelsea", "Leeds United", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-21", "Coventry City", "Crystal Palace", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-21", "Hull City", "Brighton & Hove Albion", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-21", "Liverpool", "Manchester United", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-21", "Manchester City", "Fulham", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-21", "Newcastle United", "Arsenal", "3:00 PM GMT", NOTE_UNCONFIRMED),
+      F("2026-11-21", "Tottenham Hotspur", "Ipswich Town", "3:00 PM GMT", NOTE_UNCONFIRMED),
+    ];
+  })(),
   athletics: [
     { date: "2026-08-30", time: "11:00 AM CEST", matchup: "ISTAF Berlin", venue: "Olympiastadion, Berlin", note: "World Athletics Continental Tour Silver meeting; held two weeks after the European Championships; 150+ top athletes competing" },
     { date: "2026-08-30", time: "6:30 AM AEST", matchup: "TCS Sydney Marathon", venue: "Sydney, Australia", note: "Abbott World Marathon Majors' newest (7th) race; first WMM race held in Australia; wheelchair start ~6:15 AM AEST, mass field ~6:30 AM AEST" },
@@ -1263,10 +1412,11 @@ async function init() {
   buildDayModal();
   buildCalendarShell();
 
-  // Athletics, Boxing, IPL Cricket have no API-Sports coverage - always curated.
+  // Athletics, Boxing, IPL Cricket, Premier League have no API-Sports coverage on this plan - always curated.
   renderSection(sportById("athletics"), CURATED.athletics);
   renderSection(sportById("boxing"), CURATED.boxing);
   renderSection(sportById("ipl"), CURATED.ipl);
+  renderSection(sportById("epl"), CURATED.epl);
 
   await buildLiveSection(
     sportById("nba"),
