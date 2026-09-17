@@ -260,9 +260,7 @@
     overflow: hidden;
     animation: fadeInUp 0.35s ease both;
   }
-  .calendar-section summary {
-    list-style: none;
-    cursor: pointer;
+  .calendar-section .cal-header {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -271,14 +269,6 @@
     font-size: 1.15rem;
     background: linear-gradient(135deg, #1c2335 0%, #11151f 100%);
   }
-  .calendar-section summary::-webkit-details-marker { display: none; }
-  .calendar-section summary .chevron {
-    margin-left: auto;
-    color: var(--muted);
-    font-size: 0.9rem;
-    transition: transform 0.2s ease;
-  }
-  .calendar-section[open] summary .chevron { transform: rotate(180deg); }
   .live-dot {
     width: 12px;
     height: 12px;
@@ -1316,14 +1306,13 @@ const CAL_MAX_MONTH = new Date(HORIZON_END.getFullYear(), HORIZON_END.getMonth()
 let calCursor = new Date(CAL_MIN_MONTH);
 
 function buildCalendarShell() {
-  const details = document.createElement("details");
+  const details = document.createElement("div");
   details.className = "calendar-section";
   details.innerHTML = `
-    <summary>
+    <div class="cal-header">
       <span class="live-dot"></span>
       <span>Live Sports Calendar</span>
-      <span class="chevron">▼</span>
-    </summary>
+    </div>
     <div class="calendar-nav">
       <button id="cal-prev" type="button" aria-label="Previous month">‹</button>
       <span class="cal-month-label" id="cal-month-label"></span>
