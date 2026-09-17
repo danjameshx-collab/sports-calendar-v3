@@ -17,12 +17,12 @@
     --nfl: #d7263d;
     --nba: #f08a24;
     --boxing: #c9b037;
-    --ufc: #d62246;
+    --ufc: #d81b60;
     --ipl: #8e44ad;
     --epl: #04f5ff;
     --athletics: #2e86de;
-    --international: #c9a227;
-    --tag-cricket: #8e44ad;
+    --international: #5c6bc0;
+    --tag-cricket: #16a085;
     --tag-football: #2ecc71;
     --tag-rugby: #a0522d;
   }
@@ -629,6 +629,7 @@ const SPORTS = [
 function sportById(id) { return SPORTS.find(s => s.id === id); }
 
 const SPORT_TAG_EMOJI = { Football: "⚽", Rugby: "🏉", Cricket: "🏏" };
+const SPORT_TAG_COLOR = { Football: "var(--tag-football)", Rugby: "var(--tag-rugby)", Cricket: "var(--tag-cricket)" };
 
 // Hand-curated fallback/primary events (researched from public schedules, June 2026).
 // Each entry: { date: "YYYY-MM-DD", time: "HH:MM TZ", matchup, venue, note? }
@@ -1303,7 +1304,9 @@ const ALL_EVENTS = [];
 function trackEvents(sport, events) {
   events.forEach(e => {
     if (e.date && inWindow(e.date)) {
-      ALL_EVENTS.push({ date: e.date, color: sport.color, name: sport.name, matchup: e.matchup, time: e.time, venue: e.venue });
+      const color = e.sportTag && SPORT_TAG_COLOR[e.sportTag] ? SPORT_TAG_COLOR[e.sportTag] : sport.color;
+      const name = e.sportTag || sport.name;
+      ALL_EVENTS.push({ date: e.date, color, name, matchup: e.matchup, time: e.time, venue: e.venue });
     }
   });
 }
@@ -1636,7 +1639,7 @@ function renderSection(sport, events) {
       card.className = "event-card";
       if (e.sportTag) card.dataset.tag = e.sportTag;
       card.innerHTML = `
-        ${e.sportTag ? `<span class="sport-tag">${SPORT_TAG_EMOJI[e.sportTag] ? SPORT_TAG_EMOJI[e.sportTag] + " " : ""}${e.sportTag}</span>` : ""}
+        ${e.sportTag ? `<span class="sport-tag" style="background:${SPORT_TAG_COLOR[e.sportTag] || "var(--international)"}">${SPORT_TAG_EMOJI[e.sportTag] ? SPORT_TAG_EMOJI[e.sportTag] + " " : ""}${e.sportTag}</span>` : ""}
         ${e.womens ? `<span class="womens-tag">Womens</span>` : ""}
         <div class="matchup">${e.matchup}</div>
         <div class="meta">
